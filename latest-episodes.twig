@@ -1,0 +1,138 @@
+{% set list = network.lists({id: "LFN"}) %}
+{% set icon_size = 64 %}
+
+<style>
+    .podcast_table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        font-size: 16px;
+        font-family: Arial, sans-serif;
+        color: #333;
+    }
+    .podcast_table thead th {
+        background-color: #0073e6;
+        color: #fff;
+        padding: 15px;
+        text-align: left;
+    }
+    .podcast_table tbody tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+    .podcast_table tbody tr:hover {
+        background-color: #e6f7ff;
+    }
+    .podcast_table th, .podcast_table td {
+        padding: 15px;
+        border: 1px solid #ddd;
+        vertical-align: top;
+    }
+    .podcast_table .thumbnail img {
+        border-radius: 8px;
+        width: 100%;
+    }
+    .podcast_table .title a {
+        color: #0073e6;
+        text-decoration: none;
+        font-weight: bold;
+    }
+    .podcast_table .title a:hover {
+        text-decoration: underline;
+    }
+    .podcast_table .duration {
+        color: #666;
+    }
+    @media (max-width: 768px) {
+        .podcast_table thead {
+            display: none;
+        }
+        .podcast_table, .podcast_table tbody, .podcast_table tr, .podcast_table td {
+            display: block;
+            width: 100%;
+        }
+        .podcast_table tr {
+            margin-bottom: 15px;
+        }
+        .podcast_table td {
+            text-align: right;
+            padding-left: 50%;
+            position: relative;
+        }
+        .podcast_table td::before {
+            content: attr(data-label);
+            position: absolute;
+            left: 15px;
+            width: calc(50% - 30px);
+            white-space: nowrap;
+            text-align: left;
+            font-weight: bold;
+        }
+        .podcast_table .thumbnail {
+            text-align: center;
+            padding: 15px;
+        }
+        .podcast_table .thumbnail img {
+            width: auto;
+        }
+    }
+</style>
+
+{% if list is defined %}
+    <h2>{{ list.title }}</h2>
+    <table class="podcast_table">
+        <thead>
+            <tr>
+                <th style="width: {{ icon_size + 10 }}px">Episode</th>
+                <th style="width: {{ icon_size + 10 }}px">Podcast</th>
+                <th>Titel</th>
+                <th>Dauer & Beschreibung</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% set episodes = list.episodes({limit: 50, orderby: 'post_date', order: 'DESC'}) %}
+            {% if episodes is not empty %}
+                {% for episode in episodes %}
+                    {% set podcast = episode.podcast %}
+                    <tr class="podcast_archive_element">
+                        <!-- Episode Thumbnail -->
+                        <td class="thumbnail" data-label="Episode">
+                            {% if episode.image %}
+                                <a href="{{ episode.url }}">
+                                    {{ episode.image.html({retina: true, width: icon_size, title: episode.title}) }}
+                                </a>
+                            {% endif %}
+                        </td>
+                        <!-- Podcast Thumbnail -->
+                        <td class="thumbnail" data-label="Podcast">
+                            <a href="{{ podcast.landingPageUrl }}">
+                                {{ podcast.image.html({retina: true, width: icon_size, title: podcast.title}) }}
+                            </a>
+                        </td>
+                        <!-- Episode and Podcast Title -->
+                        <td class="title" data-label="Titel">
+                            <a href="{{ episode.url }}">
+                                <strong>{{ episode.title }}</strong>
+                            </a>
+                            <br/>
+                            <strong>{{ podcast.title }}</strong>
+                            <br/>
+                            {{ episode.publicationDate }}
+                        </td>
+                        <!-- Episode Duration and Subtitle -->
+                        <td class="duration" data-label="Dauer & Beschreibung">
+                            {{ episode.duration }}
+                            <br/>
+                            <i>{{ episode.subtitle }}</i>
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="4">Keine Episoden gefunden.</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+{% else %}
+    <p>Keine Liste gefunden.</p>
+{% endif %}
