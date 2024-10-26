@@ -1,0 +1,401 @@
+{% set sum = 0 %}
+{% set count = 0 %}
+{% set episodes_with_downloads = [] %}
+
+{# Berechnung der Summe und Anzahl der Episoden #}
+{% for episode in podcast.episodes %}
+   {% if episode.duration is defined and episode.duration.totalMilliseconds is defined %}
+       {% set sum = sum + episode.duration.totalMilliseconds %}
+       {% set count = count + 1 %}
+   {% endif %}
+
+   {% if episode.total_downloads|default(0) > 0 %}
+       {% set episodes_with_downloads = episodes_with_downloads|merge([episode]) %}
+   {% endif %}
+{% endfor %}
+
+<div class="podcast-summary">
+    <p>Bisher haben wir <span class="highlight">{{ count }}</span> Folgen veröffentlicht, die <span class="highlight">{{ (sum / count / 1000 / 60)|round(0, 'floor') }} Minuten</span> im Durchschnitt lang sind. Insgesamt haben wir schon <span class="highlight">{{ (sum / 1000 / 60)|round(0, 'floor') }} Minuten</span> gepodcastet, das sind <span class="highlight">{{ (sum / 1000 / 60 / 60)|round(2) }} Stunden</span>.</p>
+</div>
+
+<h2 class="podcast-heading">Aktuelle Folge</h2>
+{% set latest = podcast.episodes[0] %}
+<p class="podcast-text">Unsere aktuelle Folge (<a href="{{ latest.url }}"><b>{{ latest.title }}</b></a>) hat bisher <span class="highlight">{{ latest.total_downloads }} Downloads</span>. {% if not latest.meta('_podlove_downloads_2d') is empty %} In den ersten 48 Stunden waren es <b>{{ latest.meta('_podlove_downloads_2d') }} Abrufe</b>.{% endif %}</p>
+
+<script src="https://unpkg.com/chartkick@4.0.4/dist/chartkick.js"></script>
+<script src="https://unpkg.com/chart.js@3.3.2/dist/chart.js"></script>
+<script src="https://unpkg.com/chartjs-adapter-date-fns@2.0.0/dist/chartjs-adapter-date-fns.bundle.js"></script>
+
+<div id="all-episodes" class="chart-container"></div>
+<script>
+    new Chartkick.ColumnChart("all-episodes", [
+        {% for episode in episodes_with_downloads|slice(-50,50) %}
+            ["{{ episode.title|escape('js') }}", {{ episode.total_downloads|default(0) }}],
+        {% endfor %}
+    ], {
+        colors: ["#4caf50"],
+        xtitle: "Episoden",
+        ytitle: "Downloads",
+        maxBarThickness: 50
+    });
+</script>
+
+<p class="podcast-text">Downloads der letzten 50 Folgen.</p>
+
+<h3 class="podcast-heading">Beliebteste Folgen</h3>
+<ul class="podcast-list">
+    {% for episode in episodes_with_downloads|sort((b, a) => a.total_downloads <=> b.total_downloads)|slice(0,5) %}
+        <li>
+            <a href="{{ episode.url }}"><b>{{ episode.title }}</b></a> – <span class="highlight">{{ episode.total_downloads }} Downloads</span>
+        </li>
+    {% endfor %}
+</ul>
+
+<h3 class="podcast-heading">Folgen mit Potential</h3>
+<ul class="podcast-list">
+    {% for episode in episodes_with_downloads|sort((a, b) => a.total_downloads <=> b.total_downloads)|slice(0,5) %}
+        <li>
+            <a href="{{ episode.url }}"><b>{{ episode.title }}</b></a> – <span class="highlight">{{ episode.total_downloads }} Downloads</span>
+        </li>
+    {% endfor %}
+</ul>
+
+<h2 class="podcast-heading">Folgenlänge</h2>
+
+<div id="episode-length" class="chart-container"></div>
+<script>
+    new Chartkick.ColumnChart("episode-length", [
+        {% for episode in episodes_with_downloads|slice(-50,50) %}
+            ["{{ episode.title|escape('js') }}", {{ (episode.duration.totalMilliseconds / 1000 / 60)|round(0, 'floor') }}],
+        {% endfor %}
+    ], {
+        colors: ["#ff9800"],
+        xtitle: "Episoden",
+        ytitle: "Dauer (Minuten)",
+        maxBarThickness: 50
+    });
+</script>
+
+<p class="podcast-text">Folgenlänge der letzten 50 Folgen.</p>
+
+<h3 class="podcast-heading">Längste Folgen</h3>
+<ul class="podcast-list">
+    {% for episode in episodes_with_downloads|sort((b, a) => a.duration.totalMilliseconds <=> b.duration.totalMilliseconds)|slice(0,5) %}
+        <li>
+            <a href="{{ episode.url }}"><b>{{ episode.title }}</b></a> – <span class="highlight">{{ episode.duration.hours }}h {{ episode.duration.minutes }}m</span>
+        </li>
+    {% endfor %}
+</ul>
+
+<h3 class="podcast-heading">Kürzeste Folgen</h3>
+<ul class="podcast-list">
+    {% for episode in episodes_with_downloads|sort((a, b) => a.duration.totalMilliseconds <=> b.duration.totalMilliseconds)|slice(0,5) %}
+        <li>
+            <a href="{{ episode.url }}"><b>{{ episode.title }}</b></a> – <span class="highlight">{{ episode.duration.hours }}h {{ episode.duration.minutes }}m</span>
+        </li>
+    {% endfor %}
+</ul>
+
+<h2 class="podcast-heading">Meist Diskutierte Folgen</h2>
+<ul class="podcast-list">
+    {% for episode in podcast.episodes|sort((b, a) => a.post.comment_count <=> b.post.comment_count)|slice(0,5) %}
+        <li>
+            <a href="{{ episode.url }}#comments"><b>{{ episode.title }}</b></a> – <span class="highlight">{{ episode.post.comment_count }} Kommentare</span>
+        </li>
+    {% endfor %}
+</ul>
+
+{% set contributorCounts = {'Sascha': 0, 'Notstrom': 0, 'Tobi': 0} %}
+{% for episode in podcast.episodes %}
+    {% for contributor in episode.contributors %}
+        {% if contributor.name in contributorCounts|keys %}
+            {% set contributorCounts = contributorCounts|merge({ (contributor.name): (contributorCounts[contributor.name] + 1) }) %}
+        {% endif %}
+    {% endfor %}
+{% endfor %}
+
+<h2 class="podcast-heading">Beitragsanzahl der Moderatoren</h2>
+
+{# Ausgabe der Zahlenwerte für Beitragsanzahl der Moderatoren #}
+<ul class="podcast-list">
+    {% for name, count in contributorCounts %}
+        <li>{{ name }}: <span class="highlight">{{ count }}</span> Beiträge</li>
+    {% endfor %}
+</ul>
+
+{# Diagramm für Beitragsanzahl der Moderatoren #}
+<div id="contributor-chart" class="chart-container"></div>
+<script>
+    new Chartkick.PieChart("contributor-chart", [
+        {% for name, count in contributorCounts %}
+            ["{{ name }}", {{ count }}],
+        {% endfor %}
+    ], {
+        colors: ["#2196f3", "#e91e63", "#ffc107"],
+        title: "Beiträge der Moderatoren"
+    });
+</script>
+
+{# Neue Logik für Beitragsanzahl der Rolle "Gast" #}
+{% set guestCounts = {} %}
+
+{% for episode in podcast.episodes %}
+    {% for contributor in episode.contributors %}
+        {% if contributor.role == 'Gast' %}
+            {% if guestCounts[contributor.name] is defined %}
+                {% set guestCounts = guestCounts|merge({ (contributor.name): (guestCounts[contributor.name] + 1) }) %}
+            {% else %}
+                {% set guestCounts = guestCounts|merge({ (contributor.name): 1 }) %}
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+{% endfor %}
+
+{# Ausgabe der Top 5 Gäste nach Beitragsanzahl #}
+<h2 class="podcast-heading">Top 5 Gäste nach Beitragsanzahl</h2>
+<ul class="podcast-list">
+    {% for name, count in guestCounts|sort((b, a) => a <=> b)|slice(0,5) %}
+        <li>{{ name }}: <span class="highlight">{{ count }}</span> Beiträge</li>
+    {% endfor %}
+</ul>
+
+{# Diagramm für Beitragsanzahl der Top 5 Gäste #}
+<div id="guest-chart" class="chart-container"></div>
+<script>
+    new Chartkick.PieChart("guest-chart", [
+        {% for name, count in guestCounts|sort((b, a) => a <=> b)|slice(0,5) %}
+            ["{{ name }}", {{ count }}],
+        {% endfor %}
+    ], {
+        colors: [
+            "#2196f3",  // Blau
+            "#e91e63",  // Rosa
+            "#ffc107",  // Gelb
+            "#4caf50",  // Grün
+            "#9c27b0",  // Lila
+            "#ff5722",  // Orange
+        ],
+        title: "Beiträge der Top 5 Gäste"
+    });
+</script>
+
+{# Neue Logik für Geschlechterauswertung der Moderatoren und Gäste (nur einmalige Zählung) #}
+{% set genderCounts = {'male': 0, 'female': 0, 'other': 0, 'undefined': 0} %}
+{% set uniqueContributors = {} %}
+
+{% for episode in podcast.episodes %}
+    {% for contributor in episode.contributors %}
+        {# Sicherstellen, dass jeder Mitwirkende nur einmal gezählt wird #}
+        {% if uniqueContributors[contributor.id] is not defined %}
+            {% set uniqueContributors = uniqueContributors|merge({ (contributor.id): contributor }) %}
+
+            {# Geschlecht des Mitwirkenden prüfen und zählen #}
+            {% if contributor.gender == 'male' %}
+                {% set genderCounts = genderCounts|merge({'male': genderCounts['male'] + 1}) %}
+            {% elseif contributor.gender == 'female' %}
+                {% set genderCounts = genderCounts|merge({'female': genderCounts['female'] + 1}) %}
+            {% elseif contributor.gender == 'other' %}
+                {% set genderCounts = genderCounts|merge({'other': genderCounts['other'] + 1}) %}
+            {% else %}
+                {% set genderCounts = genderCounts|merge({'undefined': genderCounts['undefined'] + 1}) %}
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+{% endfor %}
+
+{# Ausgabe der Auswertung nach Geschlecht #}
+<h2 class="podcast-heading">Geschlechterverteilung der Moderatoren und Gäste</h2>
+<ul class="podcast-list">
+    <li>Männlich: <span class="highlight">{{ genderCounts.male }}</span> Personen</li>
+    <li>Weiblich: <span class="highlight">{{ genderCounts.female }}</span> Personen</li>
+    <li>Andere: <span class="highlight">{{ genderCounts.other }}</span> Personen</li>
+    <li>Unbekannt: <span class="highlight">{{ genderCounts.undefined }}</span> Personen</li>
+</ul>
+
+{# Diagramm für Geschlechterverteilung #}
+<div id="gender-chart" class="chart-container"></div>
+<script>
+    new Chartkick.PieChart("gender-chart", [
+        ["Männlich", {{ genderCounts.male }}],
+        ["Weiblich", {{ genderCounts.female }}],
+        ["Andere", {{ genderCounts.other }}],
+        ["Unbekannt", {{ genderCounts.undefined }}]
+    ], {
+        colors: [
+            "#2196f3",  // Blau für männlich
+            "#e91e63",  // Rosa für weiblich
+            "#9c27b0",  // Lila für andere
+            "#607d8b",  // Grau für unbekannt
+        ],
+        title: "Geschlechterverteilung"
+    });
+</script>
+
+{# Neue Logik für Geschlechterauswertung getrennt nach Moderatoren und Gästen #}
+{% set moderatorCounts = {'male': 0, 'female': 0, 'other': 0, 'undefined': 0, 'total': 0} %}
+{% set guestCounts = {'male': 0, 'female': 0, 'other': 0, 'undefined': 0, 'total': 0} %}
+{% set uniqueContributors = {} %}
+
+{% for episode in podcast.episodes %}
+    {% for contributor in episode.contributors %}
+        {# Sicherstellen, dass jeder Mitwirkende nur einmal gezählt wird #}
+        {% if uniqueContributors[contributor.id] is not defined %}
+            {% set uniqueContributors = uniqueContributors|merge({ (contributor.id): contributor }) %}
+
+            {# Überprüfen, ob der Mitwirkende Moderator oder Gast ist #}
+            {% if contributor.role == 'Moderator' %}
+                {% set moderatorCounts = moderatorCounts|merge({'total': moderatorCounts['total'] + 1}) %}
+                {# Geschlecht des Moderators prüfen und zählen #}
+                {% if contributor.gender == 'male' %}
+                    {% set moderatorCounts = moderatorCounts|merge({'male': moderatorCounts['male'] + 1}) %}
+                {% elseif contributor.gender == 'female' %}
+                    {% set moderatorCounts = moderatorCounts|merge({'female': moderatorCounts['female'] + 1}) %}
+                {% elseif contributor.gender == 'other' %}
+                    {% set moderatorCounts = moderatorCounts|merge({'other': moderatorCounts['other'] + 1}) %}
+                {% else %}
+                    {% set moderatorCounts = moderatorCounts|merge({'undefined': moderatorCounts['undefined'] + 1}) %}
+                {% endif %}
+            {% elseif contributor.role == 'Gast' %}
+                {% set guestCounts = guestCounts|merge({'total': guestCounts['total'] + 1}) %}
+                {# Geschlecht des Gastes prüfen und zählen #}
+                {% if contributor.gender == 'male' %}
+                    {% set guestCounts = guestCounts|merge({'male': guestCounts['male'] + 1}) %}
+                {% elseif contributor.gender == 'female' %}
+                    {% set guestCounts = guestCounts|merge({'female': guestCounts['female'] + 1}) %}
+                {% elseif contributor.gender == 'other' %}
+                    {% set guestCounts = guestCounts|merge({'other': guestCounts['other'] + 1}) %}
+                {% else %}
+                    {% set guestCounts = guestCounts|merge({'undefined': guestCounts['undefined'] + 1}) %}
+                {% endif %}
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+{% endfor %}
+
+{# Ausgabe der Auswertung nach Moderatoren und Gästen #}
+<h2 class="podcast-heading">Geschlechterverteilung der Moderatoren</h2>
+<ul class="podcast-list">
+    <li>Insgesamt: <span class="highlight">{{ moderatorCounts.total }}</span> Moderatoren</li>
+    <li>Männlich: <span class="highlight">{{ moderatorCounts.male }}</span> Moderatoren</li>
+    <li>Weiblich: <span class="highlight">{{ moderatorCounts.female }}</span> Moderatorinnen</li>
+    <li>Andere: <span class="highlight">{{ moderatorCounts.other }}</span> Personen</li>
+    <li>Unbekannt: <span class="highlight">{{ moderatorCounts.undefined }}</span> Personen</li>
+</ul>
+
+<h2 class="podcast-heading">Geschlechterverteilung der Gäste</h2>
+<ul class="podcast-list">
+    <li>Insgesamt: <span class="highlight">{{ guestCounts.total }}</span> Gäste</li>
+    <li>Männlich: <span class="highlight">{{ guestCounts.male }}</span> Gäste</li>
+    <li>Weiblich: <span class="highlight">{{ guestCounts.female }}</span> Gästinnen</li>
+    <li>Andere: <span class="highlight">{{ guestCounts.other }}</span> Personen</li>
+    <li>Unbekannt: <span class="highlight">{{ guestCounts.undefined }}</span> Personen</li>
+</ul>
+
+{# Diagramme für Moderatoren und Gäste #}
+<div id="moderator-gender-chart" class="chart-container"></div>
+<script>
+    new Chartkick.PieChart("moderator-gender-chart", [
+        ["Männlich", {{ moderatorCounts.male }}],
+        ["Weiblich", {{ moderatorCounts.female }}],
+        ["Andere", {{ moderatorCounts.other }}],
+        ["Unbekannt", {{ moderatorCounts.undefined }}]
+    ], {
+        colors: [
+            "#2196f3",  // Blau für männlich
+            "#e91e63",  // Rosa für weiblich
+            "#9c27b0",  // Lila für andere
+            "#607d8b",  // Grau für unbekannt
+        ],
+        title: "Geschlechterverteilung Moderatoren"
+    });
+</script>
+
+<div id="guest-gender-chart" class="chart-container"></div>
+<script>
+    new Chartkick.PieChart("guest-gender-chart", [
+        ["Männlich", {{ guestCounts.male }}],
+        ["Weiblich", {{ guestCounts.female }}],
+        ["Andere", {{ guestCounts.other }}],
+        ["Unbekannt", {{ guestCounts.undefined }}]
+    ], {
+        colors: [
+            "#2196f3",  // Blau für männlich
+            "#e91e63",  // Rosa für weiblich
+            "#9c27b0",  // Lila für andere
+            "#607d8b",  // Grau für unbekannt
+        ],
+        title: "Geschlechterverteilung Gäste"
+    });
+</script>
+
+<h2 class="podcast-heading">Unterstützt durch</h2>
+
+{# Diagramm für Unterstützt durch #}
+<div id="support" class="chart-container"></div>
+<script>
+    new Chartkick.PieChart("support", [
+        ["Sascha", 4], ["Wikipedia", 2], ["Community", 2], ["Werbung", 1]
+    ], {
+        colors: ["#009688", "#3f51b5", "#f44336", "#ffeb3b"],
+        title: "Unterstützt durch"
+    });
+</script>
+
+<p class="podcast-text">Ihr wollt die Statistik auch für euren Podlove-Podcast? Das <a href="https://github.com/poschi3/podlove-publisher-templates">Template findet ihr auf Github</a>.</p>
+
+<style>
+.podcast-summary, .podcast-summary p {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    margin: 20px 0;
+    padding: 20px;
+    background-color: #f0f0f0;
+    border-left: 5px solid #2196f3;
+}
+
+.podcast-summary .highlight {
+    color: #ff5722;
+    font-weight: bold;
+}
+
+.podcast-heading {
+    font-size: 1.6rem;
+    color: #333;
+    margin-top: 40px;
+    margin-bottom: 10px;
+}
+
+.podcast-list {
+    list-style: none;
+    padding: 0;
+}
+
+.podcast-list li {
+    margin: 10px 0;
+    font-size: 1.1rem;
+}
+
+.podcast-list li a {
+    text-decoration: none;
+    color: #2196f3;
+}
+
+.podcast-list li a:hover {
+    text-decoration: underline;
+}
+
+.podcast-list .highlight {
+    color: #4caf50;
+    font-weight: bold;
+}
+
+.podcast-text {
+    font-size: 1.1rem;
+    color: #555;
+}
+
+.chart-container {
+    height: 400px;
+    margin: 30px 0;
+}
+</style>
