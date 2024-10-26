@@ -1,0 +1,202 @@
+{% for show in podcast.shows %} 
+    <div class="podcast_show" id="{{ show.slug }}">
+        <div class="show_header">
+            <h3>
+                <a href="/show/{{ show.slug }}/">{{ show.title }}</a>
+            </h3>
+            <div class="subscribe">
+                {{ podcast.subscribeButton({format: 'cover', style: 'outline', size: 'small', show: show.slug}) }}
+            </div>
+        </div>
+        <div class="subtitle">{{ show.subtitle }}</div>
+        <div class="summary_box">
+            <p class="summary">{{ show.summary }}</p>
+        </div>
+
+        {% set episodes = [] %}
+        {% for episode in podcast.episodes %}
+            {% if episode.show.slug == show.slug %}
+                {% set episodes = episodes|merge([episode]) %}
+            {% endif %}
+        {% endfor %}
+
+        {% if episodes|length > 0 %}
+            <table>
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Datum</th>
+                        <th>Titel</th>
+                        <th>Dauer</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for episode in episodes %}
+                        <tr class="podcast_archive_element">
+                            <td class="thumbnail">
+                                {{ episode.image({fallback: true}).html({width: 128, height: 128}) }}
+                            </td>
+                            <td class="date">
+                                <span class="release_date">
+                                    {{ episode.publicationDate }}
+                                </span>
+                            </td>
+                            <td class="title">
+                                <a href="{{ episode.url }}">
+                                    <strong>{{ episode.title }}</strong><br>
+                                    {{ episode.subtitle }}
+                                </a>
+                            </td>
+                            <td class="duration">
+                                {% set duration = episode.duration %}
+                                {{ '%02d'|format(duration.hours) }}:{{ '%02d'|format(duration.minutes) }}:{{ '%02d'|format(duration.seconds) }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p><em>Noch keine Folge erschienen.</em></p>
+        {% endif %}
+    </div>
+{% endfor %}
+
+<style type="text/css">
+/* Allgemeine Stile */
+body {
+    font-family: Arial, sans-serif;
+    color: #333;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+}
+
+a {
+    color: #007acc;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Podcast Show */
+.podcast_show {
+    margin-bottom: 4em;
+}
+
+.show_header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.show_header h2 {
+    margin: 0;
+    font-size: 2em;
+}
+
+.show_header .subscribe {
+    margin-top: 1em;
+}
+
+.subtitle {
+    font-weight: bold;
+    font-size: 1.2em;
+    margin: 0.5em 0 1em 0;
+}
+
+.summary_box {
+    background-color: #f9f9f9;
+    padding: 1.5em;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    margin-bottom: 2em;
+}
+
+.summary {
+    margin: 0;
+}
+
+/* Episode Grid */
+.episode_grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2em;
+}
+
+.episode_card {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    width: calc(33.333% - 1.33em);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.episode_image img {
+    width: 100%;
+    height: auto;
+}
+
+.episode_content {
+    padding: 1em;
+}
+
+.episode_content h3 {
+    margin: 0 0 0.5em 0;
+    font-size: 1.5em;
+}
+
+.episode_subtitle {
+    color: #666;
+    margin-bottom: 1em;
+}
+
+.episode_date,
+.episode_duration {
+    font-size: 0.9em;
+    color: #999;
+}
+
+.episode_button {
+    display: inline-block;
+    margin-top: 1em;
+    padding: 0.5em 1em;
+    background-color: #007acc;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+.episode_button:hover {
+    background-color: #005fa3;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .episode_card {
+        width: calc(50% - 1em);
+    }
+}
+
+@media (max-width: 768px) {
+    .show_header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .subscribe {
+        margin-top: 0.5em;
+    }
+
+    .episode_grid {
+        flex-direction: column;
+    }
+
+    .episode_card {
+        width: 100%;
+    }
+}
+</style>
