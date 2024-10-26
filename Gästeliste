@@ -1,0 +1,54 @@
+{% set female = 0 %}
+{% set male = 0 %}
+{% for contributor in podcast.contributors({scope: "global-active", order: "ASC", orderby: "id"}) %}
+    {% if contributor.gender == "female" %}
+        {% set female = female + 1 %}        
+    {% endif %}
+    
+    {% if contributor.gender == "male" %}
+        {% set male = male + 1 %}        
+    {% endif %}
+{% endfor %}
+<div style="width:100%; padding:1em; background-color:#f9f9f9; border-radius:10px; margin-bottom:1em; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+    <h2 style="margin-top:0;">Gesamtzahl unserer Gäste</h2>
+    <p>Gesamtzahl unserer Gäste: <strong>{{ podcast.contributors|length }}</strong> ({{ female }} ♀, {{ male }} ♂)</p>
+</div>
+
+<h2>Unsere Gäste</h2>
+<div style="display: flex; flex-wrap: wrap; gap: 20px;">
+    {% for contributor in podcast.contributors({scope: "global-active", order: "ASC", orderby: "id"}) %}
+    <div style="width: calc(50% - 20px); background-color: #fff; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); padding: 20px; margin-bottom: 20px;">
+        <div style="text-align: center; margin-bottom: 15px;">
+            {{ contributor.image.html({width: 80, height: 80, alt: contributor.name, title: contributor.name, class: "circle"}) }}
+        </div>
+        <div style="text-align: center;">
+            <strong>{{ contributor.name }} ({{ contributor.episodes|length }} Folgen)</strong>
+            {% if contributor.organisation %} <br><em>{{ contributor.organisation }}</em>{% endif %}
+        </div>
+        <div style="margin-top: 10px; text-align: center; display: flex; justify-content: center; gap: 5px;">
+            {% for service in contributor.services({category: "social"}) %}
+                <a target="_blank" title="{{ service.title }}" href="{{ service.profileUrl }}">
+                    {{ service.image.html({width: 20, height: 20, alt: service.name}) }}
+                </a>
+            {% endfor %}
+        </div>
+        <div style="margin-top: 15px;">
+            <p style="margin:5px 0 10px 0; text-align: center;">{{ contributor.jobtitle }}</p>
+            <ul style="margin: 0; padding: 0; list-style: none; max-height: 150px; overflow-y: auto;">
+                {% for episode in contributor.episodes %}
+                    <li style="margin-bottom: 5px; text-align: center;">
+                        <a href="{{ episode.url }}" style="text-decoration: none; color: #007acc;">{{ episode.post.post_title }}</a> 
+                        <small style="color: #888;">({{ episode.publicationDate.format('d.m.Y') }})</small>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<style>
+    .circle {
+        border-radius: 50%;
+    }
+</style>
