@@ -4,18 +4,14 @@
 {% endif %}
 
 {% if not is_feed() %}
-    <details>
-        <summary>
-    
-         <h7><strong>
-            &#9654; Hier Klicken für das Tanscript:
-        </strong></h7>
- 
-        </summary>
-        {% if episode.transcript %}
-            {% include 'transcript.twig' %}
+    {% if episode.file("vtt") %}
+        {% include 'trankription' %}
+    {% else %}
+        {% if episode.file("vtt") %}
+             <p><small>Diese Episode gibt es auch in Schriftform. Du kannst <a href="
+             {{episode.URL}}#text">auf der Seite der Episode</a> lesen.</small></p>
         {% endif %}
-    </details>
+    {% endif %}
 {% endif %}
 
 <center>
