@@ -1,0 +1,149 @@
+<!-- Ausgabe -->
+{% if episode.hasShownotes %}
+    <h6><strong>Links zur Ausgabe:</strong></h6>
+    <p></p>
+    [podlove-episode-shownotes]
+    <p></p>
+{% endif %}
+
+{% if not is_feed() %}
+    {% if episode.file("vtt") %}
+        {% include 'trankription' %}
+    {% else %}
+        {% if episode.file("vtt") %}
+             <p><small>Diese Episode gibt es auch in Schriftform. Du kannst <a href="
+             {{episode.URL}}#text">auf der Seite der Episode</a> lesen.</small></p>
+        {% endif %}
+    {% endif %}
+{% endif %}
+
+<center>
+<br>    
+<p style="font-size: 12px; ">
+        Werbung:
+    </p>
+<a href="https://www.thomann.de/de/index.html?offid=1&affid=3268&offcreativeid=37&utm_source=Sascha+Markmann&utm_medium=affiliate&utm_campaign=id3268&utm_content=creative" target="_blank"><img src="https://thomann.clickfire.de/Programs/StreamCreative/37" width="468" height="60" /></a>
+<img src="http://thomann.clickfire.de/track/add_im?pg_id=1&pl_id=3268&pg_creative_id=37&utm_source=Sascha+Markmann&utm_medium=affiliate&utm_campaign=id3268&utm_content=creative" width="1" height="1" />
+</center>
+
+<h5><strong>Unterstützen:</strong></h5>
+<p>Ihr könnt uns über <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=9QGQR7THSU2MA">Paypal</a> direkt unterstützen oder über <a href="https://steadyhq.com/de/saschamarkmann/about/">Steady</a> oder <a href="https://www.patreon.com/SaschaMarkmann">Patreon</a> mit einem kleinen Mehrwert als Dankeschön.</p>
+<p>Die Spenden werden benötigt, um ein Teil der Kosten für die Bereitstellung meiner Werke, Podcast, Blogtexte sowie die Videos zu gewährleisten.</p>
+
+{% if not is_feed() %}
+    <h7><strong>"Unterstützer erhalten vorab Zugriff auf die neusten Veröffentlichungen noch vor ihrem regulären Erscheinen im Rohschnitt. Darüber hinaus gibt es exklusive Inhalte nur für die Unterstützer wie Vor- und Nachgespräche sowie eine Art Tagebuch. Über folgende Dienste könnt ihr uns unterstützen: <a href="https://steadyhq.com/de/saschamarkmann/about/">Steady</a>, <a href="https://www.patreon.com/SaschaMarkmann">Patreon</a> und erhaltet Zugang zu den extra Inhalten."</strong></h7>
+    <p class="has-text-align-center">
+        <a href="https://open.spotify.com/show/0l9tBtR8XbLe3ZJdWNKn7S">Patreon Feed auf Spotify</a> oder <a href="https://open.spotify.com/show/4A8vB9Sof9ixfdoqOopeVF" target="_blank" rel="noreferrer noopener">Steady Feed auf Spotify</a>
+    </p>
+{% endif %}
+
+{% set related_episodes = episode.relatedEpisodes %}
+{% if related_episodes %}
+    <h6><strong>Zugehörige Episoden:</strong></h6>
+    <ul>
+        {% for related_episode in related_episodes %}
+            <li><a href="{{ related_episode.url }}">{{ related_episode.title }}</a></li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+<h7><strong>Feedback zur Ausgabe hinterlassen? ✍️ <a href="{{ episode.url }}#comments">Dann schreib doch ein Kommentar</a></strong></h7>
+
+{% if is_feed() %}
+    <h7><strong>
+        Audio Feedback zur Sendung? ☎️ <a href="tel:+4923153075818">0231 53075818</a>
+        <br>
+        Bitte bewertet uns über <a href="https://de.trustpilot.com/review/lautfunk.uber.space?utm_medium=trustbox&utm_source=TrustBoxReviewCollector">Trustpilot</a>
+    </strong></h7>
+   
+{% else %}
+    <h7><strong>
+        Audio Feedback zur Sendung? ☎️ 0231 53075818
+        <br>
+        <!-- TrustBox widget - Review Collector -->
+        <div class="trustpilot-widget" data-locale="de-DE" data-template-id="56278e9abfbbba0bdcd568bc" data-businessunit-id="65635b1cd3535fc39868e69e" data-style-height="52px" data-style-width="100%">
+          <a href="https://de.trustpilot.com/review/lautfunk.uber.space" target="_blank" rel="noopener">Trustpilot</a>
+        </div>
+        <!-- End TrustBox widget -->
+    </strong></h7>
+{% endif %}
+
+<h6><strong>Sprecher:</strong></h6>
+[podlove-episode-contributor-list]
+<h7><strong>
+    Anzahl der Downloads: {{ episode.total_downloads | number_format(0, ',', '.') }}<br>
+    Spieldauer: {{ episode.duration }}<br>
+    Tag der Aufnahme: {{ episode.recordingDate.format('d.m.y') }}<br>
+    Diese Folge stammt aus der {{ episode.season.title }}, es gibt insgesamt {{ podcast.seasons|length }} Staffeln.
+</strong></h7>
+<br></br>
+<p>Eine <a href="{{ network.lists({id: "LFN"}).url }}">{{ network.lists({id: "LFN"}).title }}</a> Produktion - Wo Geschichten unüberhörbar übermittelt werden.</p>
+
+{% if not is_feed() %}
+<center>[podlove-podcast-subscribe-button]</center>
+{% endif %}
+
+{% for episode in podcast.episodes({post_status: 'future'}) %}
+    <h6><strong>Vorschau auf eine kommende Veröffentlichung im <a href="{{podcast.landingPageUrl}}">{{podcast.title}}</a> Podcast:</strong></h6>
+    <p style="color: #0B0101; margin-top:20px;">
+        Die nächste Episode <b>"{{ episode.post.post_title }}"</b> erscheint am <strong>{{ episode.publicationDate.format('j. F Y') }} um {{ episode.publicationDate.format('H:i') }} Uhr</strong>
+        {% if episode.chapters|length > 2 %}
+            und hat {{ episode.chapters|length }} Kapitelmarken, unter anderem:
+            
+            {% set chapters = episode.chapters|slice(1, episode.chapters|length - 2) %}
+            {% for chapter in chapters %}
+                "{{ chapter.title }}"{% if not loop.last %}, {% endif %}
+            {% endfor %}
+        {% elseif episode.chapters|length == 2 %}
+            Nur eine Kapitelmarke vorhanden: "{{ episode.chapters[1].title }}"
+        {% endif %}.
+        
+        {% if episode.duration.totalMilliseconds > 0 %}
+            Du kannst dich auf {{ episode.duration }} feinste Unterhaltung freuen.
+        {% endif %}
+    </p>
+{% endfor %}
+
+
+<!-- Lizenz -->
+<h6><strong>Podcast Lizenz:</strong></h6>
+<center>
+    {% if license is not defined %}
+        {% if episode is not null and episode.license.valid %}
+            {% set license = episode.license %}
+        {% else %}
+            {% set license = podcast.license %}
+        {% endif %}
+    {% endif %}
+
+    {% if license.valid %}
+        {% if license.creativeCommons %}
+            <div class="podlove_cc_license">
+                <img src="{{ license.imageUrl }}" alt="License" />
+                <p>This work is licensed under a <a rel="license" href="{{ license.url }}">{{ license.name }}</a></p>
+            </div>
+        {% else %}
+            This work is licensed under the <a href="{{ license.url }}">{{ license.name }}</a> license.
+        {% endif %}
+    {% else %}
+        <div class="podlove_license">
+            <p style="color: red;">This work is (not yet) licensed, as no license was chosen.</p>
+        </div>
+    {% endif %}
+</center>
+
+<center>
+ <a href="https://www.thomann.de/de/index.html?offid=1&affid=3268" target="_blank">
+            <img src="https://lautfunk.uber.space/wp-content/uploads/2024/08/DE_2402_70_jahre_320x50_v01.gif" alt="Grafik Beschreibung" style="max-width:100%; height:auto;">
+        </a>
+</center>
+<br>  
+
+<center>
+<p style="font-size: 12px;">Hinweis: Dieser Beitrag enthält Affiliate-Links. Wenn du über diese Links einkaufst, erhalte ich eine kleine Provision ohne zusätzliche Kosten für dich.</p>
+</center>
+
+<!-- Intro -->
+<!--<small>
+<p style="font-size: 10px;">Unser Intro wird von Klangzaun bereitgestellt, und der Track heißt "Iskvomot". <a href="https://soundcloud.com/klangzaun/iskvomot?si=bd0575da1990429e222a737fa591b805&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing">Hier</a> kannst du ihn anhören.</p>
+</small>-->
