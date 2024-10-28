@@ -28,7 +28,7 @@
         <div style="margin-top: 10px; text-align: center; display: flex; justify-content: center; gap: 5px;">
             {% for service in contributor.services({category: "social"}) %}
                 <a target="_blank" title="{{ service.title }}" href="{{ service.profileUrl }}">
-                    {{ service.image.html({width: 20, height: 20, alt: service.name}) }}
+                    {{ service.image.html({width: 20, height: 20, alt: service.titel}) }}
                 </a>
             {% endfor %}
         </div>
