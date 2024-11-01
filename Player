@@ -1,0 +1,113 @@
+{% if not is_feed() %}
+    {# Anzeige des Web-Players für die Episode #}
+    {{ episode.player }}
+
+    [podlove-episode-downloads style="buttons"]
+    
+    <a href="{{ episode.url }}#comments">Bitte hinterlasse ein Kommentar</a>
+    und ein Like.
+<p></p>
+
+{% if episode.transcript is not empty %}
+  {# Button zum Öffnen des Transkripts #}
+  <button id="toggle-transcript" onclick="toggleTranscript()" style="padding: 10px 20px; font-size: 1em; cursor: pointer; border: none; background-color: #cccccc; color: #333; border-radius: 20px; margin-top: 10px;">
+    Für das Transcript hier klicken
+  </button>
+
+  <div id="transcript-container" style="display: none; margin-top: 15px;">
+    {# CSS-Styles für die Transkript-Tabelle #}
+    <style type="text/css">
+      .ts-table-container {
+        max-height: 600px; /* Höhe der Tabelle, damit ca. 40 Zeilen sichtbar sind */
+        overflow-y: auto; /* Ermöglicht vertikales Scrollen */
+        overflow-x: hidden; /* Verhindert horizontales Scrollen */
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        margin-top: 10px;
+      }
+      .ts-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .ts-table th, .ts-table td {
+        padding: 8px;
+        border: 1px solid #ddd;
+        text-align: left;
+        vertical-align: top;
+      }
+      .ts-table tr:nth-of-type(even) {
+        background-color: #f0f0f0; /* Heller Grauton für jede zweite Zeile */
+      }
+      .ts-table tr:hover {
+        background-color: #e0e0e0; /* Dunklerer Grauton beim Hover über jede Zeile */
+      }
+      .ts-speaker {
+        font-weight: bold;
+        font-size: 1em;
+        padding-right: 10px;
+      }
+      .ts-time {
+        font-size: 0.9em;
+        color: #666;
+        display: block;
+        margin-bottom: 5px;
+      }
+      .ts-content {
+        font-size: 1em;
+        line-height: 1.4;
+      }
+    </style>
+
+    <div class="ts-table-container">
+      <table class="ts-table">
+        <thead>
+          <tr>
+            {% if group.contributor %}
+              <th>Sprecher</th>
+            {% endif %}
+            <th>Transkript</th>
+          </tr>
+        </thead>
+        <tbody>
+          {# Schleife für jede Transkriptgruppe #}
+          {% for group in episode.transcript %}
+            {# Sprechername und Zeilen für diese Gruppe #}
+            {% for line in group.items %}
+              <tr>
+                {% if group.contributor %}
+                  <td class="ts-speaker">{{ group.contributor.name }}</td>
+                {% endif %}
+                <td>
+                  <span class="ts-time">{{ line.start }} &ndash; {{ line.end }}</span>
+                  <div class="ts-content">{{ line.content }}</div>
+                </td>
+              </tr>
+            {% endfor %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    function toggleTranscript() {
+      const container = document.getElementById("transcript-container");
+      const button = document.getElementById("toggle-transcript");
+      if (container.style.display === "none") {
+        container.style.display = "block";
+        button.textContent = "Transcript ausblenden";
+      } else {
+        container.style.display = "none";
+        button.textContent = "Für das Transcript hier klicken";
+      }
+    }
+  </script>
+{% else %}
+  <p>Es ist kein Transcript für diese Episode verfügbar.</p>
+{% endif %}
+
+
+
+{% endif %}
+
+<p></p>
