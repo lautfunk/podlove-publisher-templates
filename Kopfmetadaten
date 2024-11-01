@@ -1,0 +1,52 @@
+<!-- Apple iTunes Meta Tag -->
+<meta name="apple-itunes-app" content="app-id=xxxxxxxxxx" />
+
+{% if not is_feed() and episode.slug %} {# make sure this only appears on episode pages #}
+
+    <!-- Twitter Player Card Metadata -->
+    <meta name="twitter:card" content="player"/>
+    <meta name="twitter:player" content="https://cdn.podlove.org/web-player/5.x/share.html?config=https://lautfunk.uber.space/wp-json/podlove-web-player/shortcode/config/default/theme/default/show/default&episode=https://lautfunk.uber.space/wp-json/podlove-web-player/shortcode/publisher/{{ episode.post.ID }}"/>
+    <meta name="twitter:player:width" content="440"/>
+    <meta name="twitter:player:height" content="200"/>
+    <meta name="twitter:url" content="{{ episode.url }}"/>
+    <meta name="twitter:title" content="{{ episode.title }}"/>
+    <meta name="twitter:description" content="{{ episode.subtitle }}"/>
+    <meta name="twitter:site" content="@LautFunk"/>
+    <meta name="twitter:creator" content="@Raumwelle"/>
+    <meta name="twitter:image" content="{{ episode.imageUrl }}"/>
+
+    <!-- Open Graph Metadata for Fediverse, Facebook, LinkedIn, etc. -->
+    <meta property="og:type" content="article"/>
+    <meta property="og:url" content="{{ episode.url }}"/>
+    <meta property="og:title" content="{{ episode.title }}"/>
+    <meta property="og:description" content="{{ episode.subtitle }}"/>
+    <meta property="og:image" content="{{ episode.imageUrl }}"/>
+    <meta property="og:audio" content="{{ episode.audioUrl }}"/>
+    <meta property="og:audio:type" content="audio/mpeg"/>
+    <meta property="og:site_name" content="LautFunk"/>
+    <meta property="og:locale" content="de_DE"/> <!-- Locale for German language support -->
+
+    <!-- Schema.org Metadata for Google, Bing, and Search Engines -->
+    <meta itemprop="name" content="{{ episode.title }}">
+    <meta itemprop="description" content="{{ episode.subtitle }}">
+    <meta itemprop="image" content="{{ episode.imageUrl }}">
+    <meta itemprop="url" content="{{ episode.url }}">
+    <meta itemprop="duration" content="{{ episode.duration }}"> <!-- ISO 8601 duration format -->
+
+    <!-- ActivityPub Metadata (if server supports ActivityPub) -->
+    <link rel="alternate" type="application/activity+json" href="{{ episode.url }}/activitypub">
+
+    <!-- oEmbed for Enhanced Player Embedding -->
+    <link rel="alternate" type="application/json+oembed" href="https://lautfunk.uber.space/oembed?url={{ episode.url }}" title="{{ episode.title }}">
+
+    <!-- Basic HTML Metadata (fallback for other platforms) -->
+    <meta name="description" content="{{ episode.subtitle }}"/>
+    <meta name="title" content="{{ episode.title }}"/>
+    <meta name="image" content="{{ episode.imageUrl }}"/>
+
+    <!-- Additional Audio Metadata for Fediverse and Rich Snippets -->
+    <meta property="og:audio:secure_url" content="{{ episode.audioUrl }}"/>
+    <meta property="og:audio:type" content="audio/mp3"/>
+    <meta name="audio" content="{{ episode.audioUrl }}"/>
+
+{% endif %}
