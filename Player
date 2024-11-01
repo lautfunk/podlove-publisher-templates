@@ -1,13 +1,3 @@
-{% if not is_feed() %}
-    {# Anzeige des Web-Players für die Episode #}
-    {{ episode.player }}
-
-    [podlove-episode-downloads style="buttons"]
-    
-    <a href="{{ episode.url }}#comments">Bitte hinterlasse ein Kommentar</a>
-    und ein Like.
-<p></p>
-
 {% if episode.transcript is not empty %}
   {# Button zum Öffnen des Transkripts #}
   <button id="toggle-transcript" onclick="toggleTranscript()" style="padding: 10px 20px; font-size: 1em; cursor: pointer; border: none; background-color: #cccccc; color: #333; border-radius: 20px; margin-top: 10px;">
@@ -34,6 +24,12 @@
         border: 1px solid #ddd;
         text-align: left;
         vertical-align: top;
+      }
+      .ts-table .ts-speaker-column {
+        width: 75%; /* 3/4 der Zeilenbreite für den Sprecher */
+      }
+      .ts-table .ts-transcript-column {
+        width: 25%; /* 1/4 der Zeilenbreite für den Inhalt */
       }
       .ts-table tr:nth-of-type(even) {
         background-color: #f0f0f0; /* Heller Grauton für jede zweite Zeile */
@@ -63,9 +59,9 @@
         <thead>
           <tr>
             {% if group.contributor %}
-              <th>Sprecher</th>
+              <th class="ts-speaker-column">Sprecher</th>
             {% endif %}
-            <th>Transkript</th>
+            <th class="ts-transcript-column">Transkript</th>
           </tr>
         </thead>
         <tbody>
@@ -105,9 +101,3 @@
 {% else %}
   <p>Es ist kein Transcript für diese Episode verfügbar.</p>
 {% endif %}
-
-
-
-{% endif %}
-
-<p></p>
