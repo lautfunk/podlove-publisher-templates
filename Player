@@ -1,7 +1,7 @@
 {% if episode.transcript is not empty %}
   {# Button zum Öffnen des Transkripts #}
   <button id="toggle-transcript" onclick="toggleTranscript()" style="padding: 10px 20px; font-size: 1em; cursor: pointer; border: none; background-color: #cccccc; color: #333; border-radius: 20px; margin-top: 10px;">
-    Für das Transcript hier klicken
+    Für das Transkript hier klicken
   </button>
 
   <div id="transcript-container" style="display: none; margin-top: 15px;">
@@ -22,14 +22,19 @@
       .ts-table th, .ts-table td {
         padding: 8px;
         border: 1px solid #ddd;
+        vertical-align: middle;
         text-align: left;
-        vertical-align: top;
+      }
+      .ts-table th {
+        background-color: #e0e0e0; /* Abgesetzter Bereich für die Überschriften */
+        font-weight: bold;
       }
       .ts-table .ts-speaker-column {
-        width: 75%; /* 3/4 der Zeilenbreite für den Sprecher */
+        width: 25%; /* 1/4 der Zeilenbreite für den Sprecher */
+        text-align: center; /* Zentrierung des Inhalts */
       }
       .ts-table .ts-transcript-column {
-        width: 25%; /* 1/4 der Zeilenbreite für den Inhalt */
+        width: 75%; /* 3/4 der Zeilenbreite für den Inhalt */
       }
       .ts-table tr:nth-of-type(even) {
         background-color: #f0f0f0; /* Heller Grauton für jede zweite Zeile */
@@ -38,9 +43,18 @@
         background-color: #e0e0e0; /* Dunklerer Grauton beim Hover über jede Zeile */
       }
       .ts-speaker {
-        font-weight: bold;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
         font-size: 1em;
-        padding-right: 10px;
+        text-align: center;
+      }
+      .ts-speaker img {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%; /* Runde Bilder für die Sprecher */
+        margin-bottom: 5px;
       }
       .ts-time {
         font-size: 0.9em;
@@ -58,27 +72,46 @@
       <table class="ts-table">
         <thead>
           <tr>
-            {% if group.contributor %}
+            {% if episode.transcript|first.contributor is not null %}
               <th class="ts-speaker-column">Sprecher</th>
+              <th class="ts-transcript-column">Transkript</th>
+            {% else %}
+              <th colspan="2">Transkript</th>
             {% endif %}
-            <th class="ts-transcript-column">Transkript</th>
           </tr>
         </thead>
         <tbody>
           {# Schleife für jede Transkriptgruppe #}
           {% for group in episode.transcript %}
-            {# Sprechername und Zeilen für diese Gruppe #}
-            {% for line in group.items %}
-              <tr>
-                {% if group.contributor %}
-                  <td class="ts-speaker">{{ group.contributor.name }}</td>
-                {% endif %}
-                <td>
-                  <span class="ts-time">{{ line.start }} &ndash; {{ line.end }}</span>
-                  <div class="ts-content">{{ line.content }}</div>
-                </td>
-              </tr>
-            {% endfor %}
+            {# Überprüfen, ob ein Mitwirkender definiert ist #}
+            {% if group.contributor is not null %}
+              {# Sprechername und Zeilen für diese Gruppe #}
+              {% for line in group.items %}
+                <tr>
+                  <td class="ts-speaker">
+                    {# Überprüfen, ob der Mitwirkende ein Bild hat #}
+                    {% if group.contributor.avatar is not null %}
+                      {{ group.contributor.avatar.html({width: 50, height: 50, alt: group.contributor.name}) }}
+                    {% endif %}
+                    <strong>{{ group.contributor.name }}</strong>
+                  </td>
+                  <td>
+                    <span class="ts-time">{{ line.start }} &ndash; {{ line.end }}</span>
+                    <div class="ts-content">{{ line.content }}</div>
+                  </td>
+                </tr>
+              {% endfor %}
+            {% else %}
+              {# Falls kein Mitwirkender definiert ist, nur den Inhalt anzeigen, ohne Sprecherzelle #}
+              {% for line in group.items %}
+                <tr>
+                  <td colspan="2">
+                    <span class="ts-time">{{ line.start }} &ndash; {{ line.end }}</span>
+                    <div class="ts-content">{{ line.content }}</div>
+                  </td>
+                </tr>
+              {% endfor %}
+            {% endif %}
           {% endfor %}
         </tbody>
       </table>
@@ -91,13 +124,13 @@
       const button = document.getElementById("toggle-transcript");
       if (container.style.display === "none") {
         container.style.display = "block";
-        button.textContent = "Transcript ausblenden";
+        button.textContent = "Transkript ausblenden";
       } else {
         container.style.display = "none";
-        button.textContent = "Für das Transcript hier klicken";
+        button.textContent = "Für das Transkript hier klicken";
       }
     }
   </script>
 {% else %}
-  <p>Es ist kein Transcript für diese Episode verfügbar.</p>
+  <p>Es ist kein Transkript für diese Episode verfügbar.</p>
 {% endif %}
