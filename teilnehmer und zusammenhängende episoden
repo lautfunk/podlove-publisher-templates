@@ -3,17 +3,6 @@
     <p>[podlove-episode-shownotes]</p>
 {% endif %}
 
-{% if not is_feed() %}
-    {% if episode.file("vtt") %}
-        {% include 'trankription' %}
-    {% else %}
-        {% if episode.file("vtt") %}
-             <p><small>Diese Episode gibt es auch in Schriftform. Du kannst <a href="
-             {{episode.URL}}#text">auf der Seite der Episode</a> lesen.</small></p>
-        {% endif %}
-    {% endif %}
-{% endif %}
-
 <center>
 <br>    
 <p style="font-size: 12px; ">
