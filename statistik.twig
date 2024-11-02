@@ -29,7 +29,7 @@
 <div id="all-episodes" class="chart-container"></div>
 <script>
     new Chartkick.ColumnChart("all-episodes", [
-        {% for episode in episodes_with_downloads|slice(-50,50) %}
+        {% for episode in podcast.episodes({publicationDate: 'title', 'order': 'ASC'})|filter(e => e.total_downloads > 0)|slice(-50,50) %}
             ["{{ episode.title|escape('js') }}", {{ episode.total_downloads|default(0) }}],
         {% endfor %}
     ], {
@@ -65,7 +65,7 @@
 <div id="episode-length" class="chart-container"></div>
 <script>
     new Chartkick.ColumnChart("episode-length", [
-        {% for episode in episodes_with_downloads|slice(-50,50) %}
+        {% for episode in podcast.episodes({publicationDate: 'title', 'order': 'ASC'})|filter(e => e.total_downloads > 0)|slice(-50,50) %}
             ["{{ episode.title|escape('js') }}", {{ (episode.duration.totalMilliseconds / 1000 / 60)|round(0, 'floor') }}],
         {% endfor %}
     ], {
