@@ -2,22 +2,35 @@
     <!-- Anzeige des Web-Players für die Episode -->
     {{ episode.player }}
 
-    <!-- Stile für Download-Tabelle und Transkript -->
+    <!-- Stile für Download-Tabelle, Transkript und Kommentar-Link -->
     <style>
+        /* Einheitliche, kompakte Schriftart nur für spezifische Elemente im Template-Bereich */
+        .container, .container * {
+            font-family: Roboto, sans-serif;
+            font-size: 16px;
+            color: #333;
+        }
+
         /* Allgemeine Stile */
         .container {
+            width: 100%;
             max-width: 600px;
-            margin: 20px auto;
+            margin: 20px 0;
             border: 1px solid #ddd;
             border-radius: 5px;
-            overflow: hidden;
             background-color: #fff;
+            padding: 15px;
+        }
+
+        .section {
+            margin-bottom: 20px; /* Abstand zwischen den Abschnitten */
         }
 
         /* Download-Tabelle */
         .episode-download-table {
             width: 100%;
             border-collapse: collapse;
+            margin: 0;
         }
 
         .episode-download-table th, .episode-download-table td {
@@ -31,6 +44,23 @@
             font-weight: bold;
         }
 
+        .episode-download-table .format-column {
+            width: 40%;
+            text-align: left;
+        }
+
+        .episode-download-table .file-size-column {
+            width: 20%;
+            text-align: center;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .episode-download-table .download-column {
+            width: 40%;
+            text-align: center;
+        }
+
         .episode-download-table tr:nth-of-type(even) {
             background-color: #f9f9f9;
         }
@@ -41,23 +71,36 @@
 
         .download-button {
             display: inline-block;
-            background-color: #cccccc; /* Graue Hintergrundfarbe */
-            color: #333333; /* Schwarze Schriftfarbe */
+            background-color: #cccccc;
+            color: #333333;
             padding: 8px 16px;
             border-radius: 5px;
             font-weight: bold;
             text-decoration: none;
             transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            white-space: nowrap;
         }
 
         .download-button:hover {
-            background-color: #bbbbbb; /* Dunkleres Grau beim Hover */
+            background-color: #bbbbbb;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
 
-        .file-size {
-            font-size: 0.9em;
-            color: #666;
+        /* Kommentar-Button */
+        .comment-button {
+            display: inline-block;
+            background-color: #cccccc;
+            color: #333;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            text-decoration: none;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        .comment-button:hover {
+            background-color: #bbbbbb;
         }
 
         /* Transkript-Tabelle */
@@ -66,6 +109,7 @@
             overflow-y: auto;
             border: 1px solid #ddd;
             margin-top: 10px;
+            margin-bottom: 20px; /* Abstand unter der Transkript-Tabelle */
         }
 
         .ts-table {
@@ -131,18 +175,23 @@
             color: #333;
             border-radius: 20px;
             margin-top: 10px;
+            text-transform: none; /* Verhindert Großschreibung */
+        }
+
+        .toggle-transcript-button:hover {
+            background-color: #bbbbbb;
         }
     </style>
 
     <!-- Download-Tabelle -->
     {% if episode.files|length > 0 %}
-    <div class="container">
+    <div class="container section">
         <table class="episode-download-table">
             <thead>
                 <tr>
-                    <th>Format</th>
-                    <th>Größe</th>
-                    <th>Download</th>
+                    <th class="format-column">Format</th>
+                    <th class="file-size-column">Größe</th>
+                    <th class="download-column">Download</th>
                 </tr>
             </thead>
             <tbody>
@@ -150,72 +199,79 @@
                     {% set asset = file.asset %}
                     {% if asset.downloadable %}
                         <tr>
-                            <td>{{ asset.title }}</td>
-                            <td><span class="file-size">{{ file.size|formatBytes }}</span></td>
-                            <td>
-                                <a href="{{ file.publicUrl("download", "buttonlist") }}" class="download-button">Herunterladen</a>
+                            <td class="format-column">{{ asset.title }}</td>
+                            <td class="file-size-column">{{ file.size|formatBytes }}</td>
+                            <td class="download-column">
+                                <a href="{{ file.publicUrl("download", "buttonlist") }}" class="download-button">Download</a>
                             </td>
                         </tr>
                     {% endif %}
+                {% else %}
+                    <!-- Fallback, falls keine downloadbaren Dateien vorhanden sind -->
+                    <tr>
+                        <td colspan="3" style="text-align: center; padding: 10px; color: #666;">Keine Dateien zum Download verfügbar</td>
+                    </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
     {% endif %}
 
-    <!-- Kommentar-Link -->
-    <a href="{{ episode.url }}#comments">Bitte hinterlasse ein Kommentar</a> und ein Like.
-
-<p></p>
+    <!-- Kommentar-Link als Button -->
+    <div class="section">
+        <a href="{{ episode.url }}#comments" class="comment-button">Schreibe einen Kommentar</a>
+    </div>
 
     <!-- Transkript-Button und -Tabelle -->
     {% if episode.transcript is not empty %}
-        <button id="toggle-transcript" onclick="toggleTranscript()" class="toggle-transcript-button">
-            Für das Transkript hier klicken
-        </button>
+        <div class="section">
+            <button id="toggle-transcript" onclick="toggleTranscript()" class="toggle-transcript-button">
+                Für das Transkript hier klicken
+            </button>
 
-        <div id="transcript-container" class="ts-table-container" style="display: none;">
-            <table class="ts-table">
-                <thead>
-                    <tr>
-                        {% if episode.transcript|first.contributor is not null %}
-                            <th class="ts-speaker-column">Sprecher</th>
-                            <th class="ts-transcript-column">Transkript</th>
-                        {% else %}
-                            <th colspan="2">Transkript</th>
-                        {% endif %}
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for group in episode.transcript %}
-                        {% if group.contributor is not null %}
-                            {% for line in group.items %}
-                                <tr>
-                                    <td class="ts-speaker">
-                                        {% if group.contributor.avatar is not null %}
-                                            {{ group.contributor.avatar.html({width: 50, height: 50, alt: group.contributor.name}) }}
-                                        {% endif %}
-                                        <strong>{{ group.contributor.name }}</strong>
-                                    </td>
-                                    <td>
-                                        <span class="ts-time">{{ line.start }} &ndash; {{ line.end }}</span>
-                                        <div class="ts-content">{{ line.content }}</div>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        {% else %}
-                            {% for line in group.items %}
-                                <tr>
-                                    <td colspan="2">
-                                        <span class="ts-time">{{ line.start }} &ndash; {{ line.end }}</span>
-                                        <div class="ts-content">{{ line.content }}</div>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        {% endif %}
-                    {% endfor %}
-                </tbody>
-            </table>
+            <div id="transcript-container" class="ts-table-container" style="display: none;">
+                <table class="ts-table">
+                    <thead>
+                        <tr>
+                            {% if episode.transcript|first.contributor is not null %}
+                                <th class="ts-speaker-column">Sprecher</th>
+                                <th class="ts-transcript-column">Transkript</th>
+                            {% else %}
+                                <th colspan="2">Transkript</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for group in episode.transcript %}
+                            {% if group.contributor is not null %}
+                                {% for line in group.items %}
+                                    <tr>
+                                        <td class="ts-speaker">
+                                            {% if group.contributor.avatar is not null %}
+                                                {{ group.contributor.avatar.html({width: 50, height: 50, alt: group.contributor.name}) }}
+                                            {% endif %}
+                                            <strong>{{ group.contributor.name }}</strong>
+                                        </td>
+                                        <td>
+                                            <span class="ts-time">{{ line.start }} &ndash; {{ line.end }}</span>
+                                            <div class="ts-content">{{ line.content }}</div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                {% for line in group.items %}
+                                    <tr>
+                                        <td colspan="2">
+                                            <span class="ts-time">{{ line.start }} &ndash; {{ line.end }}</span>
+                                            <div class="ts-content">{{ line.content }}</div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <script type="text/javascript">
@@ -232,8 +288,6 @@
             }
         </script>
     {% else %}
-        <p>Es ist kein Transkript für diese Episode verfügbar.</p>
+        <p class="section">Es ist kein Transkript für diese Episode verfügbar.</p>
     {% endif %}
 {% endif %}
-
-<p></p>
