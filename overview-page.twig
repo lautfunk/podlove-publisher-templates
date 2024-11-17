@@ -50,7 +50,12 @@
                 </div>
             {% endif %}
             <p class="episode-summary">{{ episode.summary|nl2br }}</p>
-            <p><a title="{{ episode.title }}" href="{{ episode.url }}">Zur Sendungsseite...</a></p>
+
+            <div class="button-container">
+                <a href="{{ episode.url }}" title="{{ episode.title }}" class="button-style">Zur Episodenseite</a>
+                <a href="{{ episode.url }}#comments" class="button-style">Schreibe einen Kommentar</a>
+            </div>
+
             <div class="episode-footer"></div>
         </div>
     {% endif %}
@@ -135,6 +140,28 @@
 }
 .featured-episode .episode-summary {
     margin: 20px 0;
+}
+.button-container {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+.button-style {
+    background-color: #0073aa;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    text-decoration: none;
+    text-align: center;
+    display: inline-block;
+    font-family: inherit;
+}
+.button-style:hover {
+    background-color: #005f8a;
 }
 .episode-table {
     width: 100%;
