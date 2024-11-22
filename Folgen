@@ -1,0 +1,119 @@
+{# @core/shortcode/episode-list.twig #}
+
+<style>
+    .podcast_table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        font-size: 16px;
+        font-family: Arial, sans-serif;
+        color: #333;
+    }
+    .podcast_table thead th {
+        background-color: #0073e6;
+        color: #fff;
+        padding: 15px;
+        text-align: left;
+    }
+    .podcast_table tbody tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+    .podcast_table tbody tr:hover {
+        background-color: #e6f7ff;
+    }
+    .podcast_table th, .podcast_table td {
+        padding: 15px;
+        border: 1px solid #ddd;
+        vertical-align: top;
+    }
+    .podcast_table .thumbnail img {
+        border-radius: 8px;
+        width: 100%;
+        max-width: 100px; /* Anpassung der maximalen Breite */
+        height: auto; /* Automatische Höhe, um das Seitenverhältnis beizubehalten */
+    }
+    .podcast_table .title a {
+        color: #0073e6;
+        text-decoration: none;
+        font-weight: bold;
+    }
+    .podcast_table .title a:hover {
+        text-decoration: underline;
+    }
+    .podcast_table .duration {
+        color: #666;
+    }
+    @media (max-width: 768px) {
+        .podcast_table thead {
+            display: none;
+        }
+        .podcast_table, .podcast_table tbody, .podcast_table tr, .podcast_table td {
+            display: block;
+            width: 100%;
+        }
+        .podcast_table tr {
+            margin-bottom: 15px;
+        }
+        .podcast_table td {
+            text-align: right;
+            padding-left: 50%;
+            position: relative;
+        }
+        .podcast_table td::before {
+            content: attr(data-label);
+            position: absolute;
+            left: 15px;
+            width: calc(50% - 30px);
+            white-space: nowrap;
+            text-align: left;
+            font-weight: bold;
+        }
+        .podcast_table .thumbnail {
+            text-align: center;
+            padding: 15px;
+        }
+        .podcast_table .thumbnail img {
+            width: auto;
+        }
+    }
+</style>
+<table class="podcast_table">
+    <thead>
+        <tr>
+            <th></th>
+            <th>Datum</th>
+            <th>Titel</th>
+            <th>Dauer</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for episode in podcast.episodes %}
+            <tr class="podcast_archive_element">
+                <!-- Episode Thumbnail -->
+                <td class="thumbnail" data-label="Thumbnail">
+                    {{ episode.image({fallback: true}).html({width: 100, height: 100}) }}
+                </td>
+                <!-- Publication Date -->
+                <td class="date" data-label="Datum">
+                    <span class="release_date">
+                        {{ episode.publicationDate }}
+                    </span>
+                </td>
+                <!-- Episode Title and Subtitle -->
+                <td class="title" data-label="Titel">
+                    <a href="{{ episode.url }}">
+                        <strong>{{ episode.title }}</strong>
+                    </a>
+                    <br>
+                    <i>{{ episode.subtitle }}</i>
+                </td>
+                <!-- Episode Duration -->
+                <td class="duration" data-label="Dauer">
+                    {% set duration = episode.duration %}
+                    {{ duration.hours }}:{{ duration.minutes|padLeft("0",2) }}:{{ duration.seconds|padLeft("0",2) }}
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
