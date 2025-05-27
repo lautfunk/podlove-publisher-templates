@@ -6,6 +6,11 @@
     <p></p>
 {% endif %}
 
+<section class="social-and-donations">
+    {% include 'social/podcast-social-and-donation.twig' %}
+</section>
+
+
 <center>
 <br>    
 <p style="font-size: 12px; ">
@@ -15,16 +20,7 @@
 <img src="http://thomann.clickfire.de/track/add_im?pg_id=1&pl_id=3268&pg_creative_id=37&utm_source=Sascha+Markmann&utm_medium=affiliate&utm_campaign=id3268&utm_content=creative" width="1" height="1" />
 </center>
 
-<h5><strong>Unterstützen:</strong></h5>
-<p>Ihr könnt uns über <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=9QGQR7THSU2MA">Paypal</a> direkt unterstützen oder über <a href="https://steadyhq.com/de/saschamarkmann/about/">Steady</a> oder <a href="https://www.patreon.com/SaschaMarkmann">Patreon</a> mit einem kleinen Mehrwert als Dankeschön.</p>
-<p>Die Spenden werden benötigt, um ein Teil der Kosten für die Bereitstellung meiner Werke, Podcast, Blogtexte sowie die Videos zu gewährleisten.</p>
 
-{% if not is_feed() %}
-    <h7><strong>"Unterstützer erhalten vorab Zugriff auf die neusten Veröffentlichungen noch vor ihrem regulären Erscheinen im Rohschnitt. Darüber hinaus gibt es exklusive Inhalte nur für die Unterstützer wie Vor- und Nachgespräche sowie eine Art Tagebuch. Über folgende Dienste könnt ihr uns unterstützen: <a href="https://steadyhq.com/de/saschamarkmann/about/">Steady</a>, <a href="https://www.patreon.com/SaschaMarkmann">Patreon</a> und erhaltet Zugang zu den extra Inhalten."</strong></h7>
-    <p class="has-text-align-center">
-        <a href="https://open.spotify.com/show/0l9tBtR8XbLe3ZJdWNKn7S">Patreon Feed auf Spotify</a> oder <a href="https://open.spotify.com/show/4A8vB9Sof9ixfdoqOopeVF" target="_blank" rel="noreferrer noopener">Steady Feed auf Spotify</a>
-    </p>
-{% endif %}
 
 {% set related_episodes = episode.relatedEpisodes %}
 {% if related_episodes %}
@@ -57,8 +53,12 @@
     </strong></h7>
 {% endif %}
 
-<h6><strong>Sprecher:</strong></h6>
-[podlove-episode-contributor-list]
+
+<section class="Contributoren">
+    {% include 'Contributoren.twig' %}
+</section>
+<br> 
+
 <h7><strong>
     Anzahl der Downloads: {{ episode.total_downloads | number_format(0, ',', '.') }}<br>
     Spieldauer: {{ episode.duration }}<br>
@@ -123,7 +123,7 @@
 
 <center>
  <a href="https://www.thomann.de/de/index.html?offid=1&affid=3268" target="_blank">
-            <img src="https://lautfunk.uber.space/wp-content/uploads/2024/08/DE_2402_70_jahre_320x50_v01.gif" alt="Grafik Beschreibung" style="max-width:100%; height:auto;">
+            <img src="https://lautfunk.uber.space/wp-content/uploads/2025/05/2504_tho_synthdays_728x90_v01.jpg" alt="Grafik Beschreibung" style="max-width:100%; height:auto;">
         </a>
 </center>
 <br>  
