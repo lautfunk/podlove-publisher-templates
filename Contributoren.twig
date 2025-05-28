@@ -17,12 +17,7 @@
             <div class="contributor-role">{{ contributor.role.title }}</div>
           {% endif %}
           <div class="contributor-links">
-            {% for service in contributor.services({category: "social"}) %}
-              <a href="{{ service.profileUrl }}" title="{{ service.title }}" target="_blank" rel="noopener" class="contributor-link">
-                {{ service.image.html({width: 24, height: 24, alt: service.name}) }}
-              </a>
-            {% endfor %}
-            {% for service in contributor.services({category: "donation"}) %}
+            {% for service in contributor.services() %}
               <a href="{{ service.profileUrl }}" title="{{ service.title }}" target="_blank" rel="noopener" class="contributor-link">
                 {{ service.image.html({width: 24, height: 24, alt: service.name}) }}
               </a>
@@ -30,25 +25,8 @@
           </div>
         </div>
       {% endfor %}
-
-
-    {# Platzhalter anzeigen, wenn es weniger als 2 Mitwirkende gibt #}
-      {% if contributors|length < 2 %}
-        <div class="contributor-card placeholder">
-         </div>
-          <div class="contributor-name"></div>
-          <div class="contributor-role"></div>
-        </div>
-      {% endif %}
-
-  
     </div>
   </section>
-{% endif %}
-
-
-{% if is_feed() %}
-[podlove-podcast-contributor-list]
 {% endif %}
 
 
