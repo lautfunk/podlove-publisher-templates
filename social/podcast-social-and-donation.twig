@@ -1,0 +1,99 @@
+{# @social/podcast-social-and-donation.twig #}
+
+<div class="podcast-services-wrapper">
+
+  {% set donation_services = podcast.services({ category: "donation" }) %}
+  {% set social_services = podcast.services({ category: "social" }) %}
+
+  {% if donation_services|length %}
+    <section class="podcast-section">
+      <h3 class="podcast-heading">Unterstütze unseren Podcast</h3>
+      <ul class="podcast-list">
+        {% for service in donation_services %}
+          <li class="podcast-item">
+            <a href="{{ service.profileUrl }}" title="{{ service.description }}" target="_blank" rel="noopener" class="podcast-link">
+              {{ service.image.html({ width: 32, alt: service.title ~ " Icon" }) }}
+              <span>{{ service.title }}</span>
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
+  {% endif %}
+
+  {% if social_services|length %}
+    <section class="podcast-section">
+      <h3 class="podcast-heading">Folge uns auf</h3>
+      <ul class="podcast-list">
+        {% for service in social_services %}
+          <li class="podcast-item">
+            <a href="{{ service.profileUrl }}" title="{{ service.description }}" target="_blank" rel="noopener" class="podcast-link">
+              {{ service.image.html({ width: 32, alt: service.title ~ " Icon" }) }}
+              <span>{{ service.title }}</span>
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
+  {% endif %}
+
+</div>
+
+<style>
+.podcast-services-wrapper {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+.podcast-section {
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: box-shadow 0.3s ease;
+}
+
+.podcast-section:hover {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+.podcast-heading {
+    font-size: 1.6rem;
+    margin-bottom: 1.5rem;
+    color: #222;
+    text-align: center;
+}
+
+.podcast-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.podcast-item {
+    margin-bottom: 1rem;
+}
+
+.podcast-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    color: #333;
+    font-size: 1.1rem;
+    transition: color 0.3s ease;
+}
+
+.podcast-link:hover {
+    color: #0073e6;
+}
+
+.podcast-link img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    border-radius: 6px;
+}
+</style>
