@@ -311,3 +311,64 @@
         <p class="section">Es ist kein Transkript für diese Episode verfügbar.</p>
     {% endif %}
 {% endif %}
+
+{# --- JSON-LD für PodcastEpisode: robuste Variante ohne verbotene Methoden --- #}
+
+{# 1) Hilfswerte vorbereiten #}
+{% set desc = episode.summary is not empty
+  ? episode.summary
+  : (episode.subtitle is not empty ? episode.subtitle : episode.title) %}
+
+{# Datum optional (nur wenn vorhanden) #}
+{% set pub_date = (episode.publicationDate is defined and episode.publicationDate)
+  ? episode.publicationDate|date('Y-m-d')
+  : null %}
+
+{# 2) Erste brauchbare Download-URL aus episode.files ermitteln #}
+{% set audio_url = null %}
+{% if episode.files|length > 0 %}
+  {% for f in episode.files %}
+    {% set a = f.asset %}
+    {# Nimm die erste "downloadable" Datei als Audio-Quelle #}
+    {% if audio_url is null and a and a.downloadable %}
+      {% set audio_url = f.publicUrl("download", "buttonlist") %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+
+{# 3) Series-Objekt ohne geblockte URL-Property #}
+{% set series = {
+  "@type": "PodcastSeries",
+  "name": podcast.title
+} %}
+
+{# 4) Grundobjekt aufbauen #}
+{% set ld = {
+  "@context": "https://schema.org/",
+  "@type": "PodcastEpisode",
+  "name": episode.title,
+  "url": episode.url,
+  "mainEntityOfPage": episode.url,
+  "description": desc,
+  "partOfSeries": series
+} %}
+
+{# 5) Optional Felder anhängen #}
+{% if pub_date %}
+  {% set ld = ld|merge({"datePublished": pub_date}) %}
+{% endif %}
+
+{% if audio_url %}
+  {% set ld = ld|merge({
+    "associatedMedia": {
+      "@type": "MediaObject",
+      "contentUrl": audio_url,
+      "encodingFormat": "audio/mpeg"
+    }
+  }) %}
+{% endif %}
+
+{# 6) JSON-LD ausgeben #}
+<script type="application/ld+json">
+{{ ld|json_encode(constant('JSON_UNESCAPED_SLASHES'))|raw }}
+</script>
