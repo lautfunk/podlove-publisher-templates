@@ -1,40 +1,32 @@
-# Podlove-Publisher Templates
+# Podlove Publisher Templates (Lautfunk)
 
-Podlove-Publisher Templates die wir für den [Entbehrliches-Podcast](https://podcast.entbehrlich.es/) verwenden.
+Diese Sammlung enthält Twig-Templates für den [Podlove Publisher](https://publisher.podlove.org/) (WordPress Plugin).
+Verwendet u.a. für **Lautfunk** Projekte.
 
-## Benutzung
+## 📂 Inhalt
 
-* Template erzeugen
-  * Im Wordpress Admin-Bereich auf `Podlove` -> `Templates` gehen
-  * Auf `+ Neues Template erstellen` klicken
-  * Namen vergeben (z. B. `statistik`)
-  * Inhalt der twig-Datei (z. b. `statistik.twig` in das Templates kopieren
-  * Template an den eigenen Podcast anpassen
-  * Speichern
+Dieses Repository dient als Speicher für Templates, die in WordPress unter **Podlove -> Templates** genutzt werden können.
 
-  ![grafik](https://user-images.githubusercontent.com/825911/121785979-604f4f80-cbbd-11eb-98c8-edd852db884b.png)
+Typische Templates (Beispiele):
+- `episode.twig` - Darstellung einer einzelnen Episode
+- `archive.twig` - Liste aller Episoden (Archiv)
+- `player.twig` - Konfiguration des Web-Players
+- `contributor.twig` - Darstellung der Mitwirkenden
 
-* Einbinden
-  * Wordpress Seite erzeugen (z. B. `Statistik`)
-  * Template mittels Shortcode (z.B. `[podlove-template template="statistik"]`) einfügen
-  * Speichern
+## 🚀 Benutzung
 
-  ![grafik](https://user-images.githubusercontent.com/825911/121785992-778e3d00-cbbd-11eb-82ba-efcb1e485198.png)
+1. Die gewünschte `.twig` Datei hier im Repo öffnen.
+2. Inhalt kopieren.
+3. In WordPress gehen zu: `Podlove` -> `Templates`.
+4. Neues Template anlegen (ID merken!) und Code einfügen.
+5. Im Shortcode nutzen: `[podlove-template template="DEINE-ID"]`
 
-* Ausprobieren
+## 🛠 Anpassungen
 
-Weite Infos in der [Podlove-Publisher Doku](https://docs.podlove.org/podlove-publisher/guides/templates).
+Anwender sollten folgende Stellen prüfen und anpassen:
+- **CSS-Klassen**: Die HTML-Struktur passt evtl. nicht zu jedem Theme. Prüfe `class="..."` Attribute.
+- **Podcast-Logik**: Manche Templates filtern nach Shows oder Kategorien – diese IDs müssen angepasst werden.
+- **Bilder**: Statische Bild-URLs müssen durch eigene ersetzt werden.
 
-## Templates
-
-### Statistik ([Demo](https://podcast.entbehrlich.es/statistik/))
-
-Statistik über Downloads und Folgenlängen
-
-![grafik](https://user-images.githubusercontent.com/825911/121786046-c76d0400-cbbd-11eb-8c35-2c941e530a2d.png)
-
-### Archiv ([Demo](https://podcast.entbehrlich.es/archiv/))
-
-Seite mit allen Folgen, gruppiert nach Jahr
-
-![grafik](https://github.com/poschi3/podlove-publisher-templates/assets/825911/5838e093-9cd2-4cc7-82ac-17e51a760876)
+---
+*Managed by OpenClaw & Sascha*
